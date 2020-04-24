@@ -115,7 +115,8 @@ public class Main extends Application {
 				}
 			}
 				
-			
+			name.clear();
+			pw.clear();
 		});
 		VBox buttons = new VBox();
 		buttons.getChildren().add(enter1);
@@ -145,7 +146,30 @@ public class Main extends Application {
 		inputUser.getChildren().add(pwf);
 		inputUser.getChildren().add(enterAcc);
 		
+		enterAcc.setOnAction(e -> {
+			String newName = userTf.getText();
+			String setPW = pwf.getText();
+			if(db.containsUsername(newName)) {
+				Alert error = new Alert(AlertType.ERROR);
+				error.setHeaderText("Username Error");
+				error.setContentText("The entered username already exists. Chose another username");
+				error.showAndWait();
+				return;
+			}
+			if(setPW.length() < 7) {
+				Alert error = new Alert(AlertType.ERROR);
+				error.setHeaderText("Invalid Password");
+				error.setContentText("Password must be at least 6 characters long");
+				error.showAndWait();
+				return;
+			}
+			db.addNewIndex(newName, setPW);
+			userTf.clear();
+			pwf.clear();
+		});
+		
 		subBottom.getChildren().add(inputUser);
+		bottom.getChildren().add(subBottom);
 		
 		root.setBottom(bottom);
 		
@@ -163,6 +187,8 @@ public class Main extends Application {
 		primaryStage.setScene(mainScene);
 		primaryStage.show();
 	}
+	
+	
 	
 	
 	public static void main(String[] args) {

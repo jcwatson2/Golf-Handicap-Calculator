@@ -17,5 +17,10 @@ public class IndexDataBase {
 	public void addNewIndex(String username, String pw) {
 		indexs.put(username, pw);
 	}
+	
+	public boolean containsUsername(String user) {
+		if(indexs.containsKey(user)) return true;
+		else return false;
+	}
 
 }
