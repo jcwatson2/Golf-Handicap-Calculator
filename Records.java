@@ -23,14 +23,6 @@ public class Records {
 	public void createRecord(String username) {
 		File file = new File("/Users/jameswatson/desktop/handicap-database/"+username+".json");
 		scoreRecords.put(username, file);
-		JSONObject records = new JSONObject();
-		try {
-			FileWriter writer = new FileWriter("/Users/jameswatson/desktop/handicap-database/"+username+".json");
-			writer.write(records.toJSONString());
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public File getRecord(String username) {
@@ -38,57 +30,75 @@ public class Records {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void addScore(String username, HandicapEntry entry) {
-		  try {
-			Object obj = new JSONParser().parse(new FileReader("/Users/jameswatson/desktop/handicap-database/"+username+".json"));
-			JSONObject mainObj = (JSONObject) obj;
-			
-			JSONObject score = new JSONObject();
-			score.put("Score", entry.getScore());
-			JSONObject cr = new JSONObject();
-			cr.put("Course Rating", entry.getCourseRating());
-			JSONObject slope = new JSONObject();
-			slope.put("Slope", entry.getSlopeRating());
-			
-			JSONArray newEntry = new JSONArray();
-			newEntry.add(score);
-			newEntry.add(cr);
-			newEntry.add(slope);
-			
-			mainObj.put("Entry " + entry.getDate(), newEntry);
-		
-			
+	public void addScore(String username, HandicapEntry entry) throws FileNotFoundException, IOException, ParseException {
+		JSONObject mainObj;
+		try {
+			if(getRecord(username).length() == 0) {
+				mainObj = new JSONObject();
+				JSONObject score = new JSONObject();
+				score.put("Score", entry.getScore());
+				JSONObject cr = new JSONObject();
+				cr.put("Course Rating", entry.getCourseRating());
+				JSONObject slope = new JSONObject();
+				slope.put("Slope", entry.getSlopeRating());
+				
+				JSONArray newEntry = new JSONArray();
+				newEntry.add(score);
+				newEntry.add(cr);
+				newEntry.add(slope);
+				mainObj.put("Entry " + entry.getDate(), newEntry);
+			}
+			else if(getRecord(username).exists() && getRecord(username).length() != 0) {
+				Object obj = new JSONParser().parse(new FileReader("/User/jameswatson/desktop/handicap-database/"+username+".json"));
+			    mainObj = (JSONObject) obj;
+			    JSONObject score = new JSONObject();
+				score.put("Score", entry.getScore());
+				JSONObject cr = new JSONObject();
+				cr.put("Course Rating", entry.getCourseRating());
+				JSONObject slope = new JSONObject();
+				slope.put("Slope", entry.getSlopeRating());
+			    
+				JSONArray newEntry = new JSONArray();
+				newEntry.add(score);
+				newEntry.add(cr);
+				newEntry.add(slope);
+				mainObj.put("Entry " + entry.getDate(), newEntry);
+	
+				
+				
+			}
+			else {
+				mainObj = null;
+			}
+				
 			FileWriter writer;
 			
 			try{
-				writer = new FileWriter("/Users/jameswatson/desktop/handicap-database/"+username+".json", true);
+				writer = new FileWriter(getRecord(username), true);
 				writer.append(mainObj.toJSONString());
+				writer.write(System.getProperty("line.separator"));
 				writer.flush();
 				writer.close();
-			
 			}
 			catch(IOException e) {
 				e.printStackTrace();
 			}
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
+			catch(NullPointerException e) {
+				createRecord(username);
+				addScore(username, entry);
+			}
+		}
+		catch(NullPointerException e) {
 			createRecord(username);
 			addScore(username, entry);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
-		
-		
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 		Records rec = new Records();
-		rec.addScore("jcwatson", new HandicapEntry(100, 10.5, 76, "4/27/20"));
-		rec.addScore("jcwatson", new HandicapEntry(100, 10.6, 77, "4/28/20"));
+		rec.addScore("jwat", new HandicapEntry(10, 10, 10, "10/10/10"));
+		//rec.addScore("jwat", new HandicapEntry(10, 11, 10, "10/10/10"));
+
 	}
 
 }
